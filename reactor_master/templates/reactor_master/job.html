@@ -1,0 +1,194 @@
+{% extends 'reactor_master/base.html' %}
+
+{% block content %}
+
+	<h1 class="page-header">
+        Job View
+    </h1>
+    <ol class="breadcrumb">
+        <li class="active">
+            <i class="fa fa-dashboard"></i> Job - {{job.capability.name}} 
+        </li>
+    </ol>
+
+    <!--Big Numbers-->
+	<div class="row">
+        <div class="col-lg-4 col-md-4">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-wrench fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge" style="font-size:30px;">{{job.capability.via.name}}</div>
+                            <div>Execution Relay</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3">
+            <div class="panel panel-yellow">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-cogs fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge" style="font-size:30px;">{{job.capability.action}}</div>
+                            <div>{{job.capability.actuator}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5 col-md-5">
+            <div class="panel panel-green">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-tasks fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge" style="font-size:30px;">{{job.target.name}}</div>
+                            <div>{{job.target.cybox_type.identifier}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Tables-->
+	<div class="row">
+
+
+		<div class="col-lg-4 col-md-4">
+
+            <div class="panel panel-default">
+				<div class="panel-heading">
+					Job Details
+				</div>
+                <div class="panel-body" style="">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-striped">
+							  	<tbody>
+							  		<tr>
+							  			<td width="20%">Job ID</td>
+							  			<td width="80%">{{job.id}}</td>
+							  		</tr>
+							  		<tr>
+							  			<td>Launched</td>
+							  			<td>{{job.created_at}}</td>
+							  		</tr>
+							  		<tr>
+							  			<td>Sent</td>
+							  			<td>{{job.sent_at}}</td>
+							  		</tr>							  		
+							  		<tr>	
+							  			<td>Capability</td>
+							  			<td>{{job.capability.name}}</td>
+							  		</tr>
+							  		<tr>	
+							  			<td>Action</td>
+							  			<td>{{job.capability.action}}</td>
+							  		</tr>
+							  		<tr>	
+							  			<td>Actuator</td>
+							  			<td>{{job.capability.actuator}}</td>
+							  		</tr>
+							  		<tr>	
+							  			<td>Relay</td>
+							  			<td>{{job.capability.via.name}}</td>
+							  		</tr>							  		
+							  		<tr>
+							  			<td>Responses</td>
+							  			<td>{{job.response_set.all|length}}</td>
+							  		</tr>
+							  		<tr>
+							  			<td>Status</td>
+							  			<td>{{job.status.status}}</td>
+							  		</tr>
+							  		<tr>
+							  			<td>Raw</td>
+							  			<td>
+							  				<button type="button" id="sync" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#ShowRaw">
+					  							Show Raw Message
+					  						</button>		
+					  					</td>
+							  		</tr>
+
+							  	</tbody>
+						  	</table>
+					  </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+		<div class="col-lg-8 col-md-8" style="padding-left:0px;padding-right:0px;">
+			<div class="panel panel-default">
+				  <div class="panel-heading">Responses
+					<button type="button" id="sync" class="btn btn-default btn-xs pull-right">
+				  		Refresh &nbsp
+				  	</button>
+				  </div>
+				  <div class="panel-body" style="overflow-y:auto;max-height:600px;min-height:600px;">
+					  <table id="responses">
+					  	<thead>
+					  		<tr>
+					  			<td>Repsonse ID</td>
+					  			<td>Time</td>
+					  			<td>Data</td>
+					  		</tr>
+					  	</thead>
+					  	<tbody>
+					  		{% for response in responses %}
+					  		<tr>
+					  			<td style="vertical-align:top">{{response.id}}</td>
+					  			<td style="vertical-align:top">{{response.created_at}}</td>
+					  			<td>{{response.raw_message|linebreaksbr}}</td>
+					  		</tr>
+					  		{% endfor %}
+					  	</tbody>
+					  </table>
+				  </div>
+			</div>
+		</div>
+	</div>
+
+    <!--Modals-->
+	<div class="modal fade" id="ShowRaw" role="dialog">
+		<div class="modal-dialog" style="width:750px;">
+	  		<div class="modal-content">
+	    		<div class="modal-header">
+	      			<button type="button" class="close" data-dismiss="modal">&times;</button>
+	      			<h4 class="modal-title">OpenC2 Command For Job #{{job.id}}</h4>
+	    		</div>
+	        	<div class="modal-body">
+          		
+               		<textarea rows="30" cols="100">{{job.raw_message}}</textarea>
+	       		</div>
+	        	<div class="modal-footer">
+	          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        	</div>
+	        </div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(document).ready(function(){
+
+    $('#responses').DataTable({"order": [[ 0, "desc" ]]});
+
+});
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,62 @@
+[ 
+  {
+    "fields": {
+      "identifier": "cybox:AddressObjectType",
+      "template": "{\"id\": \"example:Observable-5a014655-0491-4e4f-b7ba-3343b4fcb7dc\",\"object\": {\"id\": \"example:Observable-5a014655-0491-4e4f-b7ba-3343b4fcb7dc\", \"properties\": {\"address_value\": \"<IP HERE>\",\"xsi:type\": \"AddressObjectType\"}}}"
+    },
+    "model": "reactor_master.CybOXType",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "identifier": "cybox:NetworkConnectionObjectType",
+      "template":"{\"id\":\"example:Observable-55ec635d-3622-4b1a-b5e7-35926b7ff529\",\"object\":{\"id\":\"example:NetworkConnection-216eb415-d009-4237-af97-c05593bb89d6\",\"properties\":{\"destination_socket_address\":{\"ip_address\":{\"address_value\":\"<DestinationAddressHere>\",\"xsi:type\":\"AddressObjectType\"},\"port\":{\"port_value\":123456,\"xsi:type\":\"PortObjectType\"},\"xsi:type\":\"SocketAddressObjectType\"},\"source_socket_address\":{\"ip_address\":{\"address_value\":\"<SourceAddressHere>\",\"xsi:type\":\"AddressObjectType\"},\"port\":{\"port_value\":123456,\"xsi:type\":\"PortObjectType\"},\"xsi:type\":\"SocketAddressObjectType\"},\"xsi:type\":\"NetworkConnectionObjectType\"}},\"title\":\"ExampleTitle\"}"
+    },
+    "model": "reactor_master.CybOXType",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "identifier": "cybox:EmailMessageObjectType",
+      "template": "{\"object\": {\"id\": \"example:EmailMessage-bb0c318f-694b-4d44-b72f-a55ec4203dd2\", \"properties\": {\"raw_body\": \"<EmailMessageHere>\", \"xsi:type\": \"EmailMessageObjectType\", \"header\": {\"to\": [{\"category\": \"e-mail\", \"xsi:type\": \"AddressObjectType\", \"address_value\": \"euan.mckerrow@zepko.com\"}], \"from\": {\"category\": \"e-mail\", \"xsi:type\": \"AddressObjectType\", \"address_value\": \"support@zepko.com\"}, \"subject\": {\"value\": \"<EmailSubjectHere>\", \"condition\": \"StartsWith\"}}}}, \"id\": \"example:Observable-ca05688f-79ca-41d1-8731-45fad40bee13\", \"title\": \"ExampleTitle\"}"
+    },
+    "model": "reactor_master.CybOXType",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "identifier": "cybox:URIObjectType",
+      "template": "{\"object\": {\"id\": \"example:URI-e61e2dca-1f71-4597-ae0f-e2f8444709fa\", \"properties\": {\"xsi:type\": \"URIObjectType\", \"type\": \"URL\", \"value\": \"<URIHere>\"}}, \"id\": \"example:Observable-3701bc1d-e640-418a-9121-d63e7e36c7aa\", \"title\": \"URI <URIHere>\"}"
+    },
+    "model": "reactor_master.CybOXType",
+    "pk": 4
+  },
+  {
+    "fields": {
+      "status": "Pending"
+    },
+    "model": "reactor_master.JobStatus",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "status": "Sent"
+    },
+    "model": "reactor_master.JobStatus",
+    "pk": 2
+  },
+  {
+    "fields": {
+      "status": "Success"
+    },
+    "model": "reactor_master.JobStatus",
+    "pk": 3
+  },
+  {
+    "fields": {
+      "status": "Failed"
+    },
+    "model": "reactor_master.JobStatus",
+    "pk": 4
+  }
+]

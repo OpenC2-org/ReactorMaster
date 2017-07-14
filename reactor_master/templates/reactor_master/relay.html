@@ -1,0 +1,237 @@
+{% extends 'reactor_master/base.html' %}
+
+{% block content %}
+
+	<h1 class="page-header">
+        Relay View
+    </h1>
+    <ol class="breadcrumb">
+        <li class="active">
+            <i class="fa fa-dashboard"></i> Relay - {{relay.name}} 
+        </li>
+    </ol>
+    <!--Big Numbers-->
+	<div class="row">
+
+        <div class="col-lg-6 col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-wrench fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">{{relay.name}}</div>
+                            {% if relay %}
+                            <div>Status: Online</div>
+                            {% else %}
+                            <div>Status: Offline</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3">
+            <div class="panel panel-green">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-tasks fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">{{jobs|length}}</div>
+                            <div>Jobs</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3">
+            <div class="panel panel-yellow">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-cog fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge">{{relay.capability_set.all|length}}</div>
+                            <div>Capabilities</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!--Tables-->
+	<div class="row">
+
+
+		<div class="col-lg-3 col-md-3">
+
+            <div class="panel panel-default">
+				<div class="panel-heading">
+					<i class="fa fa-fw fa-wrench"></i> Relay Details
+				</div>
+                <div class="panel-body" style="">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-striped">
+							  	<tbody>
+							  		<tr>
+							  			<td width="20%">Relay ID</td>
+							  			<td width="80%">{{relay.id}}</td>
+							  		</tr>
+							  		<tr>
+							  			<td width="20%">Name</td>
+							  			<td width="80%">{{relay.name}}</td>
+							  		</tr>
+						  		
+							  		<tr>	
+							  			<td>URL</td>
+							  			<td><a href="{{relay.url}}">{{relay.url}}</a></td>
+							  		</tr>
+							  		<tr>	
+							  			<td>Username</td>
+							  			<td>{{relay.username}}</td>
+							  		</tr>
+							  		<tr>	
+							  			<td>Password</td>
+							  			<td>**********</td>
+							  		</tr>
+							  	</tbody>
+						  	</table>
+					  </div>
+                </div>
+            </div>
+
+
+        </div>
+
+		<div class="col-lg-9">
+
+
+				<ul class="nav nav-tabs">
+					<li class="active">
+				        <a  href="#1" data-toggle="tab"><i class="fa fa-cogs"></i> Capabilities</a>
+					</li>
+					<li>
+						<a href="#2" data-toggle="tab"><i class="fa fa-tasks"></i> Accepted Jobs</a>
+					</li>
+				</ul>
+
+				<div class="tab-content ">
+					<div class="tab-pane active" id="1">
+				
+
+						<div class="panel panel-default">
+			                <div class="panel-body">
+			                    <div class="table-responsive">
+			                        <table id="capa_table" class="table table-bordered table-hover table-striped">
+									  	<thead>
+									  		<tr>
+									  			<td>Name</td>
+									  			<td>Actuator</td>
+									  			<td>Action</td>
+									  			<td>Requires</td>
+									  			<td>Status</td>
+									  		</tr>
+									  	</thead>
+									  	<tbody>
+									  		{% for capa in relay.capability_set.all %}
+									  		<tr>
+									  			<td>{{capa.name}}</td>
+									  			<td>{{capa.actuator}}</td>
+									  			<td>{{capa.action}}</td>
+									  			<td>{{capa.requires.identifier}}</td>
+									  			{% if capa.active %}
+						             				<td><span class="label label-success">Online <i class="fa fa-check-square-o" aria-hidden="true"></i></span></td>
+						             			{% else %}
+						             				<td><span class="label label-danger">Offline <i class="fa fa-times" aria-hidden="true"></i></span></td>
+						             			{% endif %}
+									  		</tr>
+									  		{% endfor %}	
+									  	</tbody>
+									  </table>
+			                    </div>
+			                </div>
+			            </div>
+			        </div>
+			    	<div class="tab-pane" id="2">
+			            <div class="panel panel-default">
+			                <div class="panel-body">
+			                    <div class="table-responsive">
+			                        <table id="jobs_table" style="width:100%" class="table table-bordered table-hover table-striped">
+									  	<thead>
+									  		<tr>
+									  			<td>Job ID</td>
+									  			<td>Capability</td>
+									  			<td>Sent</td>
+									  			<td>Responses</td>
+									  			<td>Created By</td>
+									  			<td>Status</td>
+									  		</tr>
+									  	</thead>
+									  	<tbody>
+									  		{% for job in jobs %}
+									  		<tr class="table-row" data-href="/job/{{job.id}}/">
+									  			<td>{{job.id}}</td>
+									  			<td>{{job.capability.name}}</td>
+									  			<td>{{job.sent_at|default_if_none:"Pending"}}</td>
+									  			<td>{{job.response_set.all|length}}</td>
+									  			<td>{{job.created_by}}</td>
+									  			{% if job.status.status == "Success" %}
+						             				<td><span class="label label-success">Success <i class="fa fa-check-square-o" aria-hidden="true"></i></span></td>
+						             			{% elif job.status.status == "Failed" %}
+						             				<td><span class="label label-danger">Failed <i class="fa fa-times" aria-hidden="true"></i></span></td>
+						             			{% else %}
+						             				<td><span class="label label-warning">{{job.status.status}} <i class="fa fa-hourglass-half" aria-hidden="true"></i></span></td>
+						             			{% endif %}
+									  		</tr>
+									  		{% endfor %}	
+									  	</tbody>
+									  </table>
+			                    </div>
+			                </div>
+			            </div>
+			        </div>
+			    
+        	</div>
+		</div>
+	</div>
+    <!--/modals-->
+	<div class="modal fade" id="ShowRaw" role="dialog">
+		<div class="modal-dialog">
+	  		<div class="modal-content">
+	    		<div class="modal-header">
+	      			<button type="button" class="close" data-dismiss="modal">&times;</button>
+	      			<h4 class="modal-title">OpenC2 Command For Job #{{job.id}}</h4>
+	    		</div>
+	        	<div class="modal-body">
+          			<center>
+	                   	{{job.raw_message}}
+               		</center>
+	       		</div>
+	        	<div class="modal-footer">
+	          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        	</div>
+	        </div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(document).ready(function(){
+	$('#jobs_table').DataTable();
+	$('#capa_table').DataTable();
+	$(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+
+});
+</script>
+{% endblock %}
+
+

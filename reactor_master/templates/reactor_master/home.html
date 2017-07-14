@@ -1,0 +1,525 @@
+{% extends 'reactor_master/base.html' %}
+
+{% block content %}
+
+        <h1 class="page-header">
+            Reactor Orchestrator Dashboard
+        </h1>
+        <ol class="breadcrumb">
+            <li class="active">
+                <i class="fa fa-dashboard"></i> Dashboard
+            </li>
+        </ol>
+
+        <!--Big Numbers-->
+		<div class="row">
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-exchange fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">{{all_relays|length}}</div>
+                                <div>Active Relays</div>
+                            </div>
+                        </div>
+                    </div>
+					<a href="#" data-toggle="modal" data-target="#CreateRelay">
+                        <div class="panel-footer">
+                            <span class="pull-left">Create New Relay</span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-green">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-tasks fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">{{all_jobs|length}}</div>
+                                <div>Live Jobs</div>
+                            </div>
+                        </div>
+                    </div>
+					<a href="#" data-toggle="modal" data-target="#CreateJob">
+                        <div class="panel-footer">
+                            <span class="pull-left">Create New Job</span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>                    
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-yellow">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-cogs fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">{{all_capabilities|length}}</div>
+                                <div>Capabilities</div>
+                            </div>
+                        </div>
+                    </div>
+					<a href="#" id="sync">
+                        <div class="panel-footer">
+                            <span class="pull-left">Sync Capabilities</span>
+                            <span class="pull-right"><i class="fa fa-refresh"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="panel panel-red">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-bullseye fa-5x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge">{{all_targets|length}}</div>
+                                <div>Targeted Systems</div>
+                            </div>
+                        </div>
+                    </div>
+					<a href="#" data-toggle="modal" data-target="#CreateTarget">
+                        <div class="panel-footer">
+                            <span class="pull-left">Create New Target</span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- /.row -->
+
+         <!--Tables-->
+        <div class="row">
+			<div class="col-lg-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading clearfix">
+                        <h3 class="panel-title"><i class="fa fa-wrench"></i> Live Relays
+					  	</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-striped">
+							  	<thead>
+							  		<tr>
+							  			<td width="80%">Name</td>
+							  			<td width="10%">Status</td>
+							  			<td width="10%">Delete</td>
+							  		</tr>
+							  	</thead>
+							  	<tbody>
+							  		{% for relay in all_relays %}
+							  		<tr class="table-row" data-href="/relay/{{relay.id}}/">
+							  			<td>{{relay.name}}</td>
+							  			<td><span class="label label-success" style="padding:5px;">Online <i class="fa fa-check-square-o" aria-hidden="true"></i></span></td>
+							  			<td>
+							  				<form method="POST">
+							                  {% csrf_token %}
+							                  <input type="hidden" name="delete_relay_id" value={{relay.id}}>
+							                  <button type="submit" class="btn btn-xs btn-danger">Delete <i class="fa fa-trash" aria-hidden="true"></i></button>
+							                </form>
+							            </td>
+							  		</tr>
+							  		{% endfor %}	
+							  	</tbody>
+							  </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+			<div class="col-lg-9">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><i class="fa fa-tasks"></i> Jobs</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table id="jobs_table" class="table table-bordered table-hover table-striped">
+							  	<thead>
+							  		<tr>
+							  			<td>Job ID</td>
+							  			<td>Capability</td>
+							  			<td>Sent</td>
+							  			<td>Responses</td>
+							  			<td>Created By</td>
+							  			<td>Status</td>
+							  		</tr>
+							  	</thead>
+							  	<tbody>
+							  		{% for job in all_jobs %}
+							  		<tr class="table-row" data-href="/job/{{job.id}}/">
+							  			<td>{{job.id}}</td>
+							  			<td>{{job.capability.name}}</td>
+							  			<td>{{job.sent_at|default_if_none:"Pending"}}</td>
+							  			<td>{{job.response_set.all|length}}</td>
+							  			<td>{{job.created_by}}</td>
+							  			{% if job.status.status == "Success" %}
+				             				<td><span class="label label-success">Success <i class="fa fa-check-square-o" aria-hidden="true"></i></span></td>
+				             			{% elif job.status.status == "Failed" %}
+				             				<td><span class="label label-danger">Failed <i class="fa fa-times" aria-hidden="true"></i></span></td>
+				             			{% else %}
+				             				<td><span class="label label-warning">{{job.status.status}} <i class="fa fa-hourglass-half" aria-hidden="true"></i></span></td>
+				             			{% endif %}
+							  		</tr>
+							  		{% endfor %}	
+							  	</tbody>
+							  </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Modals-->
+		<div class="modal fade" id="CreateRelay" role="dialog">
+			<div class="modal-dialog">
+		  		<div class="modal-content">
+		    		<div class="modal-header">
+		      			<button type="button" class="close" data-dismiss="modal">&times;</button>
+		      			<h4 class="modal-title">Create A New Relay</h4>
+		    		</div>
+		    		<form method="post" action="" autocomplete="off">
+		    		{% csrf_token %}
+		        	<div class="modal-body">
+		          			<center>
+			                   	<table>
+								<tr>
+									<td>Name:</td>
+									<td>{{create_relay_form.name}}</td>
+								</tr>
+								<tr>
+									<td>URL:</td>
+									<td>{{create_relay_form.url}}</td>
+								</tr>
+								<tr>
+									<td>Username:</td>
+									<td>{{create_relay_form.username}}</td>
+								</tr>                       
+								<tr>
+									<td>Password:</td>
+									<td>{{create_relay_form.password}}</td>
+								</tr>                                      		
+			                   	</table>
+		                    	
+		               		</center>
+		       		</div>
+		        	<div class="modal-footer">
+		        		<input class="btn btn-primary" type="submit" value="Create Relay" />
+		          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		        	</div>
+		        	</form>
+		        </div>
+			</div>
+		</div>
+		<div class="modal fade" id="CreateJob" role="dialog">
+			<div class="modal-dialog" style="width:800px;">
+		  		<div class="modal-content">
+		    		<div class="modal-header">
+		      			<button type="button" class="close" data-dismiss="modal">&times;</button>
+		      			<h4 class="modal-title">Create A New Job</h4>
+		    		</div>
+		    		<form method="post" action="" autocomplete="off">
+			    	{% csrf_token %}
+		        	<div class="modal-body">
+	          			<center>
+							
+			                   	<table width="100%">
+			                   		<tr>
+			                   			<td>Capability:</td>
+			                   			<td>{{create_job_form.capability}}</td>
+			                   		</tr>
+			                   		<tr>
+			                   			<td>Target:</td>
+			                   			<td>{{create_job_form.target}}</td>
+			                   		</tr>
+			                   		<tr>
+			                   			<td>Raw Message:</td>
+			                   			<td>{{create_job_form.raw_message}}</td>
+			                   		</tr>
+			                   	</table>
+
+	               		</center>
+		       		</div>
+		        	<div class="modal-footer">
+		        		<input class="btn btn-primary" type="submit" value="Create Job" />
+		          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		        	</div>
+		        	</form>
+		        	
+		        </div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="CreateTarget" role="dialog">
+			<div class="modal-dialog" style="width:800px;">
+		  		<div class="modal-content">
+		    		<div class="modal-header">
+		      			<button type="button" class="close" data-dismiss="modal">&times;</button>
+		      			<h4 class="modal-title">Create A New Target</h4>
+		    		</div>
+		    		<form method="post" action="" autocomplete="off">
+			    	{% csrf_token %}
+		        	<div class="modal-body">
+	          			<center>
+							
+		                   	<table width="100%">
+		                   		<tr>
+		                   			<td>Type:</td>
+		                   			<td>{{create_target_form.cybox_type}}<td>
+		                   		</tr>
+		                   		<!--Hidden Elements-->
+
+		                   		<!--Cybox Address-->
+								<tr id="address_1" style="display:none;">
+									<td>Address:</td>
+									<td>
+										<input class="form-control" id="id_create_target-address" maxlength="140" name="create_target-address" type="text"/>
+									</td>
+								</tr>
+
+								<!--Cybox Network Connection-->
+								<tr id="network_1" style="display:none;">
+									<td>Source Address:</td>
+									<td>
+										<input class="form-control" id="id_create_target-source_address" maxlength="140" name="create_target-source_address" type="text" />
+									</td>
+								</tr>
+								<tr id="network_2" style="display:none;">
+									<td>Source Port:</td>
+									<td>
+										<input class="form-control" id="id_create_target-source_port" maxlength="140" name="create_target-source_port" type="text"/>
+									</td>
+								</tr>
+								<tr id="network_3" style="display:none;" >
+									<td>Destination Address:</td>
+									<td>
+										<input class="form-control" id="id_create_target-destination_address" maxlength="140" name="create_target-destination_address" type="text" />
+									</td>
+								</tr>
+								<tr id="network_4" style="display:none;">
+									<td>Destination Port:</td>
+									<td>
+										<input class="form-control" id="id_create_target-destination_port" maxlength="140" name="create_target-destination_port" type="text"/>
+									</td>
+								</tr>
+								<tr id="network_5" style="display:none;">
+									<td>Protocol:</td>
+									<td>
+										<input class="form-control" id="id_create_target-protocol" maxlength="140" name="create_target-protocol" type="text"/>
+									</td>
+								</tr>
+                                                                 <!--Cybox URI-->
+                                                                 <tr id="uri_1" style="display:none;">
+                                                                         <td>URI:</td>
+                                                                         <td>
+                                                                                 <input class="form-control"         id="id_create_target-uri" maxlength="140" name="create_target-uri" type="text" />
+                                                                         </td>
+                                                                 </tr>
+                                                                 <!--Cybox Email Message-->
+                                                                 <tr id="email_1" style="display:none;">
+                                                                         <td>Send To Email:</td>
+                                                                         <td>
+                                                                                 <input class="form-control"         id="id_create_target-email_to" maxlength="140" name="create_target-email_to" type="text" />
+                                                                         </td>
+                                                                 </tr>
+                                                                 <tr id="email_2" style="display:none;">
+                                                                         <td>Send From Email:</td>
+                                                                         <td>
+                                                                                 <input class="form-control"         id="id_create_target-email_from" maxlength="140" name="create_target-email_from" type="text" />
+                                                                         </td>
+                                                                 </tr>
+                                                                 <tr id="email_3" style="display:none;">
+                                                                         <td>Subject:</td>
+                                                                         <td>
+                                                                                 <input class="form-control"         id="id_create_target-email_subject" maxlength="140" name="create_target-email_subject" type="text" />
+                                                                         </td>
+                                                                 </tr>
+                                                                 <tr id="email_4" style="display:none;">
+                                                                         <td>Message:</td>
+                                                                         <td>
+                                                                                 <input class="form-control"         id="id_create_target-email_message" maxlength="140" name="create_target-email_message" type="text" />
+                                                                         </td>
+                                                                 </tr>
+								<!--End Hidden Elements-->
+
+		                   	</table>
+							
+			               		</center>
+				       		</div>
+		        	<div class="modal-footer">
+		        		<input class="btn btn-primary" type="submit" value="Create Target" />
+		          		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		        	</div>
+		        	</form>
+		        	
+		        </div>
+			</div>
+		</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+	$(document).ready(function(){
+
+		$( "#sync" ).click(function() {
+		 	$.getJSON( "/sync/", function( data ) {
+			  if(data.success==true){
+			  	window.location = "/";
+			  }else{
+			  	alert( "Sync Fail." );
+			  }
+			  
+			});
+		});
+		$('#jobs_table').DataTable({
+	        "order": [[ 0, "desc" ]]
+	    } );
+
+		// CLicky Jobs
+		$(".table-row").click(function() {
+	        window.document.location = $(this).data("href");
+	    });
+
+		//JOB CREATION
+		updatecapaform();
+		function updatecapaform(){
+			// Hide Incompatible Targets
+			if ($("#id_create_job-capability").val() != undefined){
+
+
+				$.getJSON( "/rest/targets/"+$("#id_create_job-capability").val()+"/", function( target_list ) {
+					
+					// Hide all Target Options
+					$('#id_create_job-target option').each(function() { 
+					  	$(this).hide();
+					});
+					// Show all valid ID's
+					for (var i in target_list) {
+						$("#id_create_job-target option[value="+target_list[i]+"]").show();
+						$("#id_create_job-target option[value="+target_list[i]+"]").prop("selected",true);
+					}
+					updatetargetselect();
+				});
+			}
+		 	
+		}
+		$("#id_create_job-capability").change(function() {
+			updatecapaform();
+		});
+
+		updatetargetselect();
+		function updatetargetselect(){
+
+			if ($("#id_create_job-capability").val() != undefined && $("#id_create_job-capability").val() != undefined){
+				$.getJSON( "/rest/command/"+$("#id_create_job-capability").val()+"/"+$("#id_create_job-target").val()+"/", function( data ) {
+					$("#id_create_job-raw_message").text(JSON.stringify(data, undefined, 4));
+				});
+			}
+		}
+
+		$("#id_create_job-target").change(function() {
+			updatetargetselect();
+		});
+
+		// Target creation form
+		updatetargetform();
+		function updatetargetform(){
+
+			if($("#id_create_target-cybox_type option:selected").text()=="cybox:NetworkConnectionObjectType"){
+
+				$("#address_1").hide();
+
+				$("#network_1").show();
+				$("#network_2").show();
+				$("#network_3").show();
+				$("#network_4").show();
+				$("#network_5").show();
+
+                                $("#email_1").hide();
+                                $("#email_2").hide();
+                                $("#email_3").hide();
+                                $("#email_4").hide();
+
+                                $("#uri_1").hide();
+
+			}else if($("#id_create_target-cybox_type option:selected").text()=="cybox:AddressObjectType"){
+
+				$("#address_1").show();
+
+				$("#network_1").hide();
+				$("#network_2").hide();
+				$("#network_3").hide();
+				$("#network_4").hide();
+				$("#network_5").hide();
+
+                                $("#email_1").hide();
+                                $("#email_2").hide();
+                                $("#email_3").hide();
+                                $("#email_4").hide();
+
+                                $("#uri_1").hide();
+
+			}else if($("#id_create_target-cybox_type option:selected").text()=="cybox:EmailMessageObjectType"){
+                                $("#address_1").hide();
+
+                                $("#network_1").hide();
+                                $("#network_2").hide();
+                                $("#network_3").hide();
+                                $("#network_4").hide();
+                                $("#network_5").hide();
+
+                                $("#email_1").show();
+                                $("#email_2").show();
+                                $("#email_3").show();
+                                $("#email_4").show();
+
+                                $("#uri_1").hide();
+                        }else if($("#id_create_target-cybox_type option:selected").text()=="cybox:URIObjectType"){
+                                $("#address_1").hide();
+
+                                $("#network_1").hide();
+                                $("#network_2").hide();
+                                $("#network_3").hide();
+                                $("#network_4").hide();
+                                $("#network_5").hide();
+
+                                $("#email_1").hide();
+                                $("#email_2").hide();
+                                $("#email_3").hide();
+                                $("#email_4").hide();
+
+                                $("#uri_1").show();
+                        }
+		}
+
+		// TARGET CREATION
+		$("#id_create_target-cybox_type").change(function(){
+			updatetargetform();
+		});	
+
+	});
+</script>
+{% endblock %}
+
+
+
